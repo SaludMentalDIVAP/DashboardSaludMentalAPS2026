@@ -3554,11 +3554,21 @@ window.addEventListener('load',function(){
       // Parse in chunks using setTimeout to avoid blocking UI
       if(msgEl) msgEl.textContent='Inicializando dashboard...';
       setTimeout(()=>{
-        window._parseDatos(pkg);
-        if(!window.DATA || !window.DATA.length) throw new Error('No data');
-        init();
-        const ov=document.getElementById('loading-overlay');
-        if(ov){ov.style.opacity='0';ov.style.transition='opacity .5s';setTimeout(()=>ov.remove(),500);}
+        try {
+          if(msgEl) msgEl.textContent='Paso 1: parseDatos...';
+          window._parseDatos(pkg);
+          if(msgEl) msgEl.textContent='Paso 2: DATA='+( window.DATA?window.DATA.length:'null')+' registros';
+          if(!window.DATA || !window.DATA.length) throw new Error('No data tras _parseDatos');
+          if(msgEl) msgEl.textContent='Paso 3: init()...';
+          init();
+          if(msgEl) msgEl.textContent='Paso 4: quitando overlay...';
+          const ov=document.getElementById('loading-overlay');
+          if(ov){ov.style.opacity='0';ov.style.transition='opacity .5s';setTimeout(()=>ov.remove(),500);}
+        } catch(err2) {
+          const ov=document.getElementById('loading-overlay');
+          if(ov) ov.innerHTML='<div style="text-align:center;padding:40px;color:white"><div style="font-size:32px">⚠️</div><div style="font-size:16px;font-weight:700;margin:12px 0">Error en inicialización</div><div style="font-size:12px;background:rgba(0,0,0,0.4);padding:12px;border-radius:8px;text-align:left;font-family:monospace">'+err2.message+'<br><br>'+err2.stack+'</div></div>';
+          console.error('Error init:', err2);
+        }
       },50);
     })
     .catch(e=>{
