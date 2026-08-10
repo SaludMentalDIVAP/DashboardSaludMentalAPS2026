@@ -2933,22 +2933,20 @@ window._parseDatos = function(pkg){
     const ss=pkg.ss,com=pkg.com,tip=pkg.tip,tc2=pkg.tc,dep=pkg.dep;
     window.PCI_YEARS=pkg.meses||['Enero','Febrero','Marzo','Abril','Mayo','Junio'];
     window.DATA = pkg.rows.map(r=>{
-      const cat=r[120];
+      const cat=r[93];
       return {
         id:r[0], n:r[1],
         c:com[r[2]], s:ss[r[3]], t:tip[r[4]], tc:tc2[r[5]], dep:dep[r[6]],
         lat:r[7], lon:r[8], ta:r[9], tp:r[10], ti:r[11], tg:r[12], tv:r[13], tk:r[14], tb:r[15], tr:r[16], tw:r[17],
         a:r.slice(18,24), p:r[24], i:r.slice(25,31), g:r.slice(31,37),
         v:r.slice(37,43), k:r.slice(43,49), b:r.slice(49,55), r:r[55], w:r[56],
+        ei:r.slice(57,75), ee:r.slice(75,93),
         cat:cat?{N0:cat[0],N1:cat[1],N2:cat[2],N3:cat[3],N4:cat[4],total:cat[0]+cat[1]+cat[2]+cat[3]+cat[4]}:null
       };
     });
     // Merge evaluaciones data
-    // eval data ya embebido en rows
+    // eval data ya embebido en map() anterior
     window.DATA.forEach(d=>{
-      // eval data embebido en row (indices 57-92)
-      d.ei = r.slice(57,75);
-      d.ee = r.slice(75,93);
       // Precalculate totals
       d.tei_rb=0;d.tei_rm=0;d.tei_ra=0;
       d.tee_rb=0;d.tee_rm=0;d.tee_ra=0;
