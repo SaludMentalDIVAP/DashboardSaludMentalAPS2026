@@ -675,11 +675,7 @@ function init() {
   ss.forEach(s=>addOpt('f-ss',s,s));
   tipos.forEach(t=>addOpt('f-tipo',t,t));
   deps.forEach(d=>addOpt('f-dep',d,d));
-  YEARS.forEach(y=>{
-    addOpt('f-anio',y,y);
-    addOpt('a-map-year',y,y);
-    addOpt('p-map-year',y,y);
-  });
+  // Opciones de mes ya están en el HTML estático — no agregar dinámicamente
 
   // Fill comunas initially
   rebuiltComunas();
