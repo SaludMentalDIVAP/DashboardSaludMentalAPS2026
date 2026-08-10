@@ -472,16 +472,8 @@ window._parseDatos = function(pkg){
       };
     });
     // Merge evaluaciones data
-    const ED = window._evalData || {};
+    // eval data ya embebido en map() — ei y ee vienen en r.slice(57,93)
     window.DATA.forEach(d=>{
-      const ev = ED[String(d.id)];
-      if(ev){
-        d.ei=ev[0]; // ingreso: [RB18,RM18,RA18,...,RB25,RM25,RA25]
-        d.ee=ev[1]; // egreso
-      } else {
-        d.ei=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-        d.ee=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-      }
       // Precalculate totals
       d.tei_rb=0;d.tei_rm=0;d.tei_ra=0;
       d.tee_rb=0;d.tee_rm=0;d.tee_ra=0;
