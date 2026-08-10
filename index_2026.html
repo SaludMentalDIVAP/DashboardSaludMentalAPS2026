@@ -1724,9 +1724,9 @@ function switchTabByName(name) {
 // ── Home KPIs ─────────────────────────────────────────────────────────────
 function updateHomeKPIs() {
   const totalAltas = DATA.reduce((s,d)=>s+d.ta,0);
-  const pbc2026 = DATA.reduce((s,d)=>s+(gp(d,'2026')||0),0);
+  const pbc2026 = DATA.reduce((s,d)=>s+(gp(d,'total')||0),0);
   const catTotal = DATA.filter(d=>d.cat).reduce((s,d)=>s+d.cat.total,0);
-  const a2026 = DATA.reduce((s,d)=>s+(ga(d,'2026')||0),0);
+  const a2026 = DATA.reduce((s,d)=>s+(ga(d,'total')||0),0);
   const pct2026 = pbc2026>0?(a2026/pbc2026*100):0;
   // Safe setter - only updates if element exists in current tab
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
@@ -2030,7 +2030,7 @@ function getPCI(d,anio){
 function kpisPCI(fd){
   const anio=F.anio;
   // If selected year is before 2020 or total, show total/2026
-  const useAnio = (anio!=='total' && parseInt(anio)<2020) ? '2026' : anio;
+  const useAnio = (anio!=='total' && parseInt(anio)<2020) ? 'total' : anio;
   const total=fd.reduce((s,d)=>s+getPCI(d,useAnio),0);
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('pci-kpi-total',fmt(total));
@@ -2151,7 +2151,7 @@ function tablaPCI(fd){
 // % PCI / PBC
 // ============================================================
 function kpisPCIPBC(fd){
-  const anio=F.anio==='total'||parseInt(F.anio)<2020?'2026':F.anio;
+  const anio=F.anio==='total'||parseInt(F.anio)<2020?'total':F.anio;
   const PY=PCI_YRS();
   const yi=PY.indexOf(anio);
   const totPCI=yi>=0?fd.reduce((s,d)=>s+(d.r[yi]||0),0):fd.reduce((s,d)=>s+(d.tr||0),0);
@@ -2188,7 +2188,7 @@ function grafPCIPBC(fd){
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(2)}%`}}},
     scales:{x:{ticks:{font:{size:11,weight:'bold'}}},y:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:10}},beginAtZero:true}}}});
 
-  const anio=F.anio==='total'||parseInt(F.anio)<2020?'2026':F.anio;
+  const anio=F.anio==='total'||parseInt(F.anio)<2020?'total':F.anio;
   const yi=PY.indexOf(anio);
   const bySS={};
   fd.forEach(d=>{if(!bySS[d.s])bySS[d.s]={r:0,p:0};bySS[d.s].r+=yi>=0?(d.r[yi]||0):(d.tr||0);bySS[d.s].p+=gp(d,anio);});
@@ -2220,7 +2220,7 @@ function grafPCIPBC(fd){
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(1)}%`}}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:10}},beginAtZero:true}}}});
 
   const allSS=[...new Set(fd.map(d=>d.s))].filter(Boolean);
-  const ssTots={};allSS.forEach(ss=>{ssTots[ss]=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.tr||0)+gp(d,'2026'),0);});
+  const ssTots={};allSS.forEach(ss=>{ssTots[ss]=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.tr||0)+gp(d,'total'),0);});
   const top15=allSS.sort((a,b)=>ssTots[b]-ssTots[a]).slice(0,15);
   mkChart('pcipbc-c-ss-linea',{type:'line',data:{labels:PY,datasets:top15.map((ss,i)=>({
     label:ss,data:PY.map((y,j)=>{const r=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.r[j]||0),0);const p=fd.filter(d=>d.s===ss).reduce((s,d)=>s+gp(d,y),0);return p>0?parseFloat((r/p*100).toFixed(2)):null;}),
@@ -2233,7 +2233,7 @@ function grafPCIPBC(fd){
 
 function tablaPCIPBC(fd){
   const PY=PCI_YRS();
-  const anio=F.anio==='total'||parseInt(F.anio)<2020?'2026':F.anio;
+  const anio=F.anio==='total'||parseInt(F.anio)<2020?'total':F.anio;
   const yi=PY.indexOf(anio);
   const conDatos=fd.filter(d=>{const r=yi>=0?(d.r[yi]||0):(d.tr||0);return r>0&&gp(d,anio)>0;});
   const sorted=conDatos.map(d=>{const r=yi>=0?(d.r[yi]||0):(d.tr||0);const p=gp(d,anio);return {...d,_r:r,_p:p,_pct:p>0?r/p*100:0};}).sort((a,b)=>b._pct-a._pct).slice(0,100);
@@ -3079,7 +3079,7 @@ function actualizarMapaIPG(){actualizarMapa('ipg','ipg');}
 // ============================================================
 function filteredCatIndData() {
   // Only establishments with cat AND ingresos 2026 > 0, respecting global filters
-  return filteredData().filter(d => d.cat && d.cat.total > 0 && gi(d,'2026') > 0);
+  return filteredData().filter(d => d.cat && d.cat.total > 0 && gi(d,'total') > 0);
 }
 
 function pctCatInd(cat_total, ing) {
@@ -3088,7 +3088,7 @@ function pctCatInd(cat_total, ing) {
 
 function kpisCatInd(fci) {
   const totCat = fci.reduce((s,d)=>s+d.cat.total, 0);
-  const totIng = fci.reduce((s,d)=>s+gi(d,'2026'), 0);
+  const totIng = fci.reduce((s,d)=>s+gi(d,'total'), 0);
   const pctNac = pctCatInd(totCat, totIng);
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('ci-kpi-pct',    pctNac.toFixed(1)+'%');
@@ -3102,7 +3102,7 @@ function kpisCatInd(fci) {
   fci.forEach(d=>{
     if(!bySS[d.s]) bySS[d.s]={cat:0,ing:0};
     bySS[d.s].cat+=d.cat.total;
-    bySS[d.s].ing+=gi(d,'2026');
+    bySS[d.s].ing+=gi(d,'total');
   });
   const ssPcts=Object.entries(bySS)
     .map(([ss,v])=>({ss,pct:pctCatInd(v.cat,v.ing)}))
@@ -3119,7 +3119,7 @@ function grafCatInd(fci) {
   fci.forEach(d=>{
     if(!bySS[d.s]) bySS[d.s]={cat:0,ing:0};
     bySS[d.s].cat+=d.cat.total;
-    bySS[d.s].ing+=gi(d,'2026');
+    bySS[d.s].ing+=gi(d,'total');
   });
   const ssData=Object.entries(bySS)
     .map(([ss,v])=>({ss,pct:pctCatInd(v.cat,v.ing),cat:v.cat,ing:v.ing}))
@@ -3150,7 +3150,7 @@ function grafCatInd(fci) {
 
   // Dual: cat + ing bars + % line
   const totCat=fci.reduce((s,d)=>s+d.cat.total,0);
-  const totIng=fci.reduce((s,d)=>s+gi(d,'2026'),0);
+  const totIng=fci.reduce((s,d)=>s+gi(d,'total'),0);
   const pctNac=pctCatInd(totCat,totIng);
   // By SS for dual
   mkChart('ci-c-dual',{type:'bar',data:{
@@ -3176,7 +3176,7 @@ function grafCatInd(fci) {
   const byTipo={};
   fci.forEach(d=>{
     if(!byTipo[d.t]) byTipo[d.t]={cat:0,ing:0};
-    byTipo[d.t].cat+=d.cat.total; byTipo[d.t].ing+=gi(d,'2026');
+    byTipo[d.t].cat+=d.cat.total; byTipo[d.t].ing+=gi(d,'total');
   });
   const tipoData=Object.entries(byTipo)
     .map(([t,v])=>({t,pct:pctCatInd(v.cat,v.ing)}))
@@ -3194,7 +3194,7 @@ function grafCatInd(fci) {
   fci.forEach(d=>{
     const dep=d.dep.trim();
     if(!byDep[dep]) byDep[dep]={cat:0,ing:0};
-    byDep[dep].cat+=d.cat.total; byDep[dep].ing+=gi(d,'2026');
+    byDep[dep].cat+=d.cat.total; byDep[dep].ing+=gi(d,'total');
   });
   const depData=Object.entries(byDep)
     .map(([dep,v])=>({dep,pct:pctCatInd(v.cat,v.ing)}))
@@ -3211,7 +3211,7 @@ function grafCatInd(fci) {
   const byCom={};
   fci.forEach(d=>{
     if(!byCom[d.c]) byCom[d.c]={cat:0,ing:0};
-    byCom[d.c].cat+=d.cat.total; byCom[d.c].ing+=gi(d,'2026');
+    byCom[d.c].cat+=d.cat.total; byCom[d.c].ing+=gi(d,'total');
   });
   const comData=Object.entries(byCom)
     .map(([c,v])=>({c,pct:pctCatInd(v.cat,v.ing)}))
@@ -3229,8 +3229,8 @@ function grafCatInd(fci) {
 function tablaCatInd(fci) {
   const sorted=fci.map(d=>({
     ...d,
-    ing2026: gi(d,'2026'),
-    pct: pctCatInd(d.cat.total, gi(d,'2026'))
+    ing2026: gi(d,'total'),
+    pct: pctCatInd(d.cat.total, gi(d,'total'))
   })).sort((a,b)=>b.pct-a.pct);
 
   const maxPct=sorted.length>0?sorted[0].pct:1;
@@ -3321,7 +3321,7 @@ function renderFicha(){
   document.getElementById('ficha-icon').textContent=icon;
   document.getElementById('ficha-nombre').textContent=nombre;
   document.getElementById('ficha-sub').textContent=sub;
-  const fAnio=(document.getElementById('terr-anio')||{}).value||'2026';
+  const fAnio=(document.getElementById('terr-anio')||{}).value||'total';
   const anioLabel=fAnio==='total'?'Ene–Jun 2026':fAnio;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   const altasVal=fAnio==='total'?fd.reduce((s,d)=>s+d.ta,0):fd.reduce((s,d)=>s+ga(d,fAnio),0);
@@ -3329,7 +3329,7 @@ function renderFicha(){
   const pctVal=pbcVal>0?(altasVal/pbcVal*100):0;
   const catTot=fd.filter(d=>d.cat).reduce((s,d)=>s+d.cat.total,0);
   const ingVal=fAnio==='total'?fd.reduce((s,d)=>s+d.ti,0):fd.reduce((s,d)=>s+gi(d,fAnio),0);
-  const ing2026=fd.reduce((s,d)=>s+gi(d,'2026'),0);
+  const ing2026=fd.reduce((s,d)=>s+gi(d,'total'),0);
   const pctCatIng=ing2026>0?(catTot/ing2026*100):0;
   const ipgVal=fAnio==='total'?fd.reduce((s,d)=>s+d.tg,0):fd.reduce((s,d)=>s+gg(d,fAnio),0);
   const ctrlVal=fAnio==='total'?fd.reduce((s,d)=>s+d.tk,0):fd.reduce((s,d)=>s+gk(d,fAnio),0);
@@ -3363,7 +3363,7 @@ function renderFicha(){
   // PCI (total acumulado 2020-2026)
   const pciVal=fd.reduce((s,d)=>s+(d.tr||0),0);
   const pci2026=fd.reduce((s,d)=>s+(d.r&&d.r[5]?d.r[5]:0),0);
-  const pbc2026f=fd.reduce((s,d)=>s+gp(d,'2026'),0);
+  const pbc2026f=fd.reduce((s,d)=>s+gp(d,'total'),0);
   const pcipbcVal=pbc2026f>0?(pci2026/pbc2026f*100):0;
   set('ficha-lbl-pci','PCI 2020–2026');
   set('ficha-kpi-pci',fmt(pciVal));
