@@ -3689,14 +3689,14 @@ function barOpts(horizontal, tickCb, hasAnno, vals) {
       legend:{display:false},
       tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.raw)}`}},
       datalabels:{
-        display:true,
+        display:ctx=>ctx.chart.config.type==='bar',
         anchor:'end',
         align:'top',
-        offset:2,
+        offset:1,
         color:'#1A2A3A',
-        font:{size:9,weight:'bold'},
-        formatter:(v)=>v>0?fmt(Math.round(v)):'',
-        clip:false
+        clip:true,
+        font:{size:7,weight:'bold'},
+        formatter:(v)=>v>0?fmt(Math.round(v)):''
       }
     },
     scales:{
@@ -3718,9 +3718,10 @@ function hbarCfg(labels,data,pal,baseColor) {
         display:true,
         anchor:'end',
         align:'right',
-        offset:4,
+        offset:2,
         color:'#1A2A3A',
-        font:{size:8,weight:'bold'},
+        clip:true,
+        font:{size:7,weight:'bold'},
         formatter:(v)=>v>0?fmt(Math.round(v)):'',
         clip:false
       }
@@ -3741,7 +3742,8 @@ function varChart(vals,color='#005F9E') {
         display:true,
         anchor:ctx=>ctx.dataset.data[ctx.dataIndex]>=0?'end':'start',
         align:ctx=>ctx.dataset.data[ctx.dataIndex]>=0?'top':'bottom',
-        offset:2,
+        clip:true,
+        offset:1,
         color:ctx=>ctx.dataset.data[ctx.dataIndex]>=0?'#2E8B57':'#D0222A',
         font:{size:8,weight:'bold'},
         formatter:(v)=>v!==0?v.toFixed(1)+'%':'',
@@ -3801,9 +3803,10 @@ function topEstabCfg(topE,anio,campo) {
         display:true,
         anchor:'end',
         align:'right',
-        offset:4,
+        offset:2,
         color:'#1A2A3A',
-        font:{size:8,weight:'bold'},
+        clip:true,
+        font:{size:7,weight:'bold'},
         formatter:(v)=>v>0?fmt(Math.round(v)):'',
         clip:false
       }
