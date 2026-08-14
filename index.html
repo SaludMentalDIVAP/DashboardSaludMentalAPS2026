@@ -1516,18 +1516,15 @@ tbody td.rank{font-weight:800;color:var(--az2);text-align:center}
     <div class="kpi-card rojo"><div class="kpi-icon">🏆</div><div class="kpi-label">SS con mayor proporción</div><div class="kpi-value xs" id="prop-kpi-top-ss">—</div><div class="kpi-sub" id="prop-kpi-top-ss-val">—</div></div>
     <div class="kpi-card morado"><div class="kpi-icon">⚠️</div><div class="kpi-label">SS con menor proporción</div><div class="kpi-value xs" id="prop-kpi-bot-ss">—</div><div class="kpi-sub" id="prop-kpi-bot-ss-val">—</div></div>
   </div>
-  <div class="sec-title">🍩 Composición de Controles SM (Acumulado Ene–Jun 2026)</div><div class="sec-sep"></div>
-  <div class="charts-grid g1" style="margin-bottom:18px">
-    <div class="chart-card">
-      <div class="chart-header"><div><div class="chart-title">Controles Individuales APS vs Intervención Psicosocial Grupal (IPG)</div><div class="chart-sub">Distribución porcentual según filtros activos</div></div></div>
-      <div style="position:relative;height:280px"><canvas id="prop-c-dona-ipg"></canvas></div>
-    </div>
-  </div>
   <div class="sec-title">📈 Tendencia del Indicador</div><div class="sec-sep"></div>
-  <div class="charts-grid g1" style="margin-bottom:18px">
+  <div class="charts-grid g2" style="margin-bottom:18px">
     <div class="chart-card">
       <div class="chart-header"><div><div class="chart-title">Evolución de la Proporción IPG / Total Controles (Ene–Jun 2026)</div><div class="chart-sub">% nacional · IPG ÷ (IPG + Controles Individuales) × 100</div></div><div style="display:flex;align-items:center;gap:6px"><div class="chart-badge">% Proporción</div><button class="btn-png" onclick="downloadNearestChart(this)" title="Descargar como PNG">⬇️ PNG</button></div></div>
       <div class="cw t"><canvas id="prop-c-tend"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Proporción de Controles Grupales vs Individuales</div><div class="chart-sub chart-sub-filtro">Composición según filtros activos</div></div><div style="display:flex;align-items:center;gap:6px"><div class="chart-badge">Composición</div><button class="btn-png" onclick="downloadNearestChart(this)" title="Descargar como PNG">⬇️ PNG</button></div></div>
+      <div style="position:relative;height:100%"><canvas id="prop-c-dona-ipg"></canvas></div>
     </div>
   </div>
   <div class="charts-grid g2">
