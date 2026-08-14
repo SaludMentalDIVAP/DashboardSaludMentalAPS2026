@@ -1516,6 +1516,13 @@ tbody td.rank{font-weight:800;color:var(--az2);text-align:center}
     <div class="kpi-card rojo"><div class="kpi-icon">🏆</div><div class="kpi-label">SS con mayor proporción</div><div class="kpi-value xs" id="prop-kpi-top-ss">—</div><div class="kpi-sub" id="prop-kpi-top-ss-val">—</div></div>
     <div class="kpi-card morado"><div class="kpi-icon">⚠️</div><div class="kpi-label">SS con menor proporción</div><div class="kpi-value xs" id="prop-kpi-bot-ss">—</div><div class="kpi-sub" id="prop-kpi-bot-ss-val">—</div></div>
   </div>
+  <div class="sec-title">🍩 Composición de Controles SM (Acumulado Ene–Jun 2026)</div><div class="sec-sep"></div>
+  <div class="charts-grid g1" style="margin-bottom:18px">
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Controles Individuales APS vs Intervención Psicosocial Grupal (IPG)</div><div class="chart-sub">Distribución porcentual según filtros activos</div></div></div>
+      <div style="position:relative;height:280px"><canvas id="prop-c-dona-ipg"></canvas></div>
+    </div>
+  </div>
   <div class="sec-title">📈 Tendencia del Indicador</div><div class="sec-sep"></div>
   <div class="charts-grid g1" style="margin-bottom:18px">
     <div class="chart-card">
@@ -3818,7 +3825,7 @@ function ssAnioCfg(fd,campo) {
   const allSS=[...new Set(fd.map(d=>d.s))].filter(Boolean);
   const ssTots={};allSS.forEach(ss=>{ssTots[ss]=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(campo==='altas'?d.ta:campo==='pbc'?d.tp:campo==='ing'?d.ti:campo==='ipg'?d.tg:campo==='act'?d.tv:campo==='ctrl'?d.tk:campo==='piv'?d.tw:d.tb),0);});
   const sortedSS=allSS.sort((a,b)=>ssTots[b]-ssTots[a]);
-  const _getV=(d,i)=>campo==='altas'?(d.a[i]||0):campo==='pbc'?(d.p[i]||0):campo==='ing'?(d.i[i]||0):campo==='ipg'?(d.g[i]||0):campo==='act'?(d.v[i]||0):campo==='ctrl'?(d.k[i]||0):campo==='piv'?(d.w[i]||0):(d.b[i]||0);
+  const _getV=(d,i)=>campo==='altas'?(d.a[i]||0):campo==='pbc'?(d.p||0):campo==='ing'?(d.i[i]||0):campo==='ipg'?(d.g[i]||0):campo==='act'?(d.v[i]||0):campo==='ctrl'?(d.k[i]||0):campo==='piv'?(d.w||0):(d.b[i]||0);
   const ds=YEARS.map((y,i)=>{
     const hue=Math.round(i*(220/11));
     const color=`hsl(${200+hue},70%,45%)`;
@@ -4259,7 +4266,7 @@ function kpisPIV(fd){
   set('piv-kpi-estab',con.toLocaleString('es-CL'));
   set('piv-kpi-prom',con>0?fmt(Math.round(total/con)):'—');
   let bY='',bV=0;
-  YEARS.forEach((y,i)=>{const s=fd.reduce((a,d)=>a+(d.w[i]||0),0);if(s>bV){bV=s;bY=y;}});
+  YEARS.forEach((y,i)=>{const s=fd.reduce((a,d)=>a+(d.w||0),0);if(s>bV){bV=s;bY=y;}});
   set('piv-kpi-best-yr',bY);
   set('piv-kpi-best-yr-val',fmt(bV)+' personas inscritas');
   const bySS={};fd.forEach(d=>{bySS[d.s]=(bySS[d.s]||0)+getPIV(d,anio);});
@@ -4270,7 +4277,7 @@ function kpisPIV(fd){
 function grafPIV(fd){
   const anio=F.anio;
   const color='#2980b9';
-  const tV=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.w[i]||0),0));
+  const tV=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.w||0),0));
   mkChart('piv-c-tend',{type:'line',data:{labels:YEARS,datasets:[{
     label:'PIV',data:tV,borderColor:color,backgroundColor:'rgba(41,128,185,0.08)',
     fill:true,tension:0.35,pointRadius:5,pointHoverRadius:8,borderWidth:3,
@@ -4329,7 +4336,7 @@ function kpisCob(fd){
   set('cob-kpi-pct',cobNac!==null?cobNac.toFixed(1)+'%':'Sin datos (PIV = 0)');
   set('cob-kpi-pct-sub',cobNac!==null?fmt(totPBC)+' PBC / '+fmt(Math.round(totPIV*COB_PREV))+' esperados':'PBC o PIV = 0');
   // Por año
-  const cobByYr=YEARS.map((y,i)=>{const p=fd.reduce((s,d)=>s+(d.p[i]||0),0);const w=fd.reduce((s,d)=>s+(d.w[i]||0),0);return getCob(p,w);});
+  const cobByYr=YEARS.map((y,i)=>{const p=fd.reduce((s,d)=>s+(d.p||0),0);const w=fd.reduce((s,d)=>s+(d.w||0),0);return getCob(p,w);});
   const cobValidos=cobByYr.filter(v=>v!==null&&v>0);
   if(cobValidos.length>0){
     const maxC=Math.max(...cobValidos);
@@ -4359,7 +4366,7 @@ function grafCob(fd){
   const anio=F.anio;
   const yi=anio==='total'?-1:YEARS.indexOf(anio);
   // Tendencia
-  const cobV=YEARS.map((y,i)=>{const p=fd.reduce((s,d)=>s+(d.p[i]||0),0);const w=fd.reduce((s,d)=>s+(d.w[i]||0),0);const c=getCob(p,w);return c!==null?parseFloat(c.toFixed(2)):null;});
+  const cobV=YEARS.map((y,i)=>{const p=fd.reduce((s,d)=>s+(d.p||0),0);const w=fd.reduce((s,d)=>s+(d.w||0),0);const c=getCob(p,w);return c!==null?parseFloat(c.toFixed(2)):null;});
   mkChart('cob-c-tend',{type:'line',data:{labels:YEARS,datasets:[{
     label:'% Cobertura SM',data:cobV,borderColor:'#27ae60',backgroundColor:'rgba(39,174,96,0.08)',
     fill:true,tension:0.35,pointRadius:5,pointHoverRadius:8,borderWidth:3,
@@ -4380,8 +4387,8 @@ function grafCob(fd){
     scales:{x:{ticks:{callback:v=>v.toFixed(0)+'%',font:{size:9}}},y:{ticks:{font:{size:9}}}}}});
 
   // Dual: PBC vs PIV×0.22
-  const pbcVals=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.p[i]||0),0));
-  const espVals=YEARS.map((y,i)=>Math.round(fd.reduce((s,d)=>s+(d.w[i]||0),0)*COB_PREV));
+  const pbcVals=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.p||0),0));
+  const espVals=YEARS.map((y,i)=>Math.round(fd.reduce((s,d)=>s+(d.w||0),0)*COB_PREV));
   mkChart('cob-c-dual',{type:'bar',data:{labels:YEARS,datasets:[
     {label:'PBC (bajo control)',data:pbcVals,backgroundColor:'rgba(46,139,87,0.7)',borderRadius:3,order:2},
     {label:'PIV×0,22 (necesidad estimada)',data:espVals,backgroundColor:'rgba(41,128,185,0.3)',borderRadius:3,order:3},
@@ -4407,7 +4414,7 @@ function grafCob(fd){
   const ssTots={};allSS.forEach(ss=>{ssTots[ss]=fd.filter(d=>d.s===ss).reduce((s,d)=>s+d.tp+d.tw,0);});
   const top15=allSS.sort((a,b)=>ssTots[b]-ssTots[a]).slice(0,15);
   mkChart('cob-c-ss-linea',{type:'line',data:{labels:YEARS,datasets:top15.map((ss,i)=>({
-    label:ss,data:YEARS.map((y,j)=>{const p=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.p[j]||0),0);const w=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.w[j]||0),0);const c=getCob(p,w);return c!==null?parseFloat(c.toFixed(2)):null;}),
+    label:ss,data:YEARS.map((y,j)=>{const p=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.p||0),0);const w=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.w||0),0);const c=getCob(p,w);return c!==null?parseFloat(c.toFixed(2)):null;}),
     borderColor:PAL[i%PAL.length],backgroundColor:'transparent',tension:0.3,pointRadius:5,pointHoverRadius:8,borderWidth:2,spanGaps:true}))},
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}},
@@ -4451,7 +4458,7 @@ const PCI_YRS = () => window.PCI_YEARS || ['Enero','Febrero','Marzo','Abril','Ma
 function getPCI(d,anio){
   if(anio==='total') return d.tr||0;
   const i=PCI_YRS().indexOf(String(anio));
-  return i>=0?(d.r[i]||0):0;
+  return i>=0?(d.r||0):0;
 }
 
 function kpisPCI(fd){
@@ -4467,7 +4474,7 @@ function kpisPCI(fd){
   const promAnual=con>0?total/con:0;
   set('pci-kpi-prom',con>0?fmt(promAnual):'—');
   let bY='',bV=0;
-  PCI_YRS().forEach((y,i)=>{const s=fd.reduce((a,d)=>a+(d.r[i]||0),0);if(s>bV){bV=s;bY=y;}});
+  PCI_YRS().forEach((y,i)=>{const s=fd.reduce((a,d)=>a+(d.r||0),0);if(s>bV){bV=s;bY=y;}});
   set('pci-kpi-best-yr',bY);
   set('pci-kpi-best-yr-val',fmt(bV)+' PCI ese año');
   const bySS={};fd.forEach(d=>{bySS[d.s]=(bySS[d.s]||0)+getPCI(d,useAnio);});
@@ -4478,7 +4485,7 @@ function kpisPCI(fd){
 function grafPCI(fd){
   const PY=PCI_YRS();
   const color='#8e44ad';
-  const tV=PY.map((y,i)=>fd.reduce((s,d)=>s+(d.r[i]||0),0));
+  const tV=PY.map((y,i)=>fd.reduce((s,d)=>s+(d.r||0),0));
   mkChart('pci-c-tend',{type:'line',data:{labels:PY,datasets:[{
     label:'PCI SM',data:tV,borderColor:color,backgroundColor:'rgba(142,68,173,0.08)',
     fill:true,tension:0.35,pointRadius:5,pointHoverRadius:8,borderWidth:3,
@@ -4518,7 +4525,7 @@ function grafPCI(fd){
   const tipos=[...new Set(fd.map(d=>d.t))].filter(Boolean);
   mkChart('pci-c-tipo-linea',{type:'line',data:{labels:PY,
     datasets:tipos.map(t=>({
-      label:t,data:PY.map((y,i)=>fd.filter(d=>d.t===t).reduce((s,d)=>s+(d.r[i]||0),0)),
+      label:t,data:PY.map((y,i)=>fd.filter(d=>d.t===t).reduce((s,d)=>s+(d.r||0),0)),
       borderColor:TIPO_C[t]||'#999',backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2}))},
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:4}}},
@@ -4553,7 +4560,7 @@ function grafPCI(fd){
   const sortedSS=allSS.sort((a,b)=>ssTots2[b]-ssTots2[a]);
   mkChart('pci-c-ss-anio',{type:'bar',data:{labels:PY,
     datasets:sortedSS.map((ss,i)=>({
-      label:ss,data:PY.map((y,j)=>fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.r[j]||0),0)),
+      label:ss,data:PY.map((y,j)=>fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.r||0),0)),
       backgroundColor:PAL[i%PAL.length],borderRadius:2,stack:'s'}))},
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{font:{size:8},boxWidth:10,padding:4}}},
@@ -4581,20 +4588,20 @@ function kpisPCIPBC(fd){
   const anio=F.anio==='total'||parseInt(F.anio)<2020?'total':F.anio;
   const PY=PCI_YRS();
   const yi=PY.indexOf(anio);
-  const totPCI=yi>=0?fd.reduce((s,d)=>s+(d.r[yi]||0),0):fd.reduce((s,d)=>s+(d.tr||0),0);
+  const totPCI=yi>=0?fd.reduce((s,d)=>s+(d.r||0),0):fd.reduce((s,d)=>s+(d.tr||0),0);
   const totPBC=fd.reduce((s,d)=>s+gp(d,anio),0);
   const pctNac=totPBC>0?(totPCI/totPBC*100):0;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('pcipbc-kpi-pct',pctNac.toFixed(1)+'%');
   set('pcipbc-kpi-pct-sub',fmt(totPCI)+' PCI / '+fmt(totPBC)+' PBC · '+anio);
-  const pctByYr=PY.map((y,i)=>{const p=fd.reduce((s,d)=>s+(d.r[i]||0),0);const b=fd.reduce((s,d)=>s+gp(d,y),0);return b>0?p/b*100:0;});
+  const pctByYr=PY.map((y,i)=>{const p=fd.reduce((s,d)=>s+(d.r||0),0);const b=fd.reduce((s,d)=>s+gp(d,y),0);return b>0?p/b*100:0;});
   const maxP=Math.max(...pctByYr.filter(v=>v>0));
   set('pcipbc-kpi-best-yr',PY[pctByYr.indexOf(maxP)]||'—');set('pcipbc-kpi-best-yr-val',maxP.toFixed(1)+'%');
-  const con=fd.filter(d=>yi>=0?(d.r[yi]||0)>0&&gp(d,anio)>0:(d.tr||0)>0).length;
+  const con=fd.filter(d=>yi>=0?(d.r||0)>0&&gp(d,anio)>0:(d.tr||0)>0).length;
   set('pcipbc-kpi-estab',con.toLocaleString('es-CL'));
   const bySS={};
   fd.forEach(d=>{if(!bySS[d.s])bySS[d.s]={r:0,p:0};
-    bySS[d.s].r+=yi>=0?(d.r[yi]||0):(d.tr||0);bySS[d.s].p+=gp(d,anio);});
+    bySS[d.s].r+=yi>=0?(d.r||0):(d.tr||0);bySS[d.s].p+=gp(d,anio);});
   const ssPcts=Object.entries(bySS).map(([ss,v])=>({ss,pct:v.p>0?v.r/v.p*100:0})).filter(x=>x.pct>0).sort((a,b)=>b.pct-a.pct);
   if(ssPcts.length>0){
     set('pcipbc-kpi-top-ss',ssNom(ssPcts[0].ss));set('pcipbc-kpi-top-ss-val',ssPcts[0].pct.toFixed(1)+'%');
@@ -4605,7 +4612,7 @@ function kpisPCIPBC(fd){
 
 function grafPCIPBC(fd){
   const PY=PCI_YRS();
-  const pctV=PY.map((y,i)=>{const p=fd.reduce((s,d)=>s+(d.r[i]||0),0);const b=fd.reduce((s,d)=>s+gp(d,y),0);return b>0?parseFloat((p/b*100).toFixed(2)):0;});
+  const pctV=PY.map((y,i)=>{const p=fd.reduce((s,d)=>s+(d.r||0),0);const b=fd.reduce((s,d)=>s+gp(d,y),0);return b>0?parseFloat((p/b*100).toFixed(2)):0;});
   mkChart('pcipbc-c-tend',{type:'line',data:{labels:PY,datasets:[{
     label:'% PCI/PBC',data:pctV,borderColor:'#8e44ad',backgroundColor:'rgba(142,68,173,0.08)',
     fill:true,tension:0.35,pointRadius:5,pointHoverRadius:8,borderWidth:3,
@@ -4618,7 +4625,7 @@ function grafPCIPBC(fd){
   const anio=F.anio==='total'||parseInt(F.anio)<2020?'total':F.anio;
   const yi=PY.indexOf(anio);
   const bySS={};
-  fd.forEach(d=>{if(!bySS[d.s])bySS[d.s]={r:0,p:0};bySS[d.s].r+=yi>=0?(d.r[yi]||0):(d.tr||0);bySS[d.s].p+=gp(d,anio);});
+  fd.forEach(d=>{if(!bySS[d.s])bySS[d.s]={r:0,p:0};bySS[d.s].r+=yi>=0?(d.r||0):(d.tr||0);bySS[d.s].p+=gp(d,anio);});
   const ssData=Object.entries(bySS).map(([ss,v])=>({ss,pct:v.p>0?parseFloat((v.r/v.p*100).toFixed(2)):0,r:v.r,p:v.p})).filter(x=>x.p>0).sort((a,b)=>b.pct-a.pct);
   const cScaleG=(pct,arr)=>{const vals=arr.map(x=>x.pct),mn=Math.min(...vals),mx=Math.max(...vals);const n=(pct-mn)/(mx-mn||1);return `rgba(${Math.round(208-(208-46)*n)},${Math.round(34+(139-34)*n)},${Math.round(42+(87-42)*n)},0.8)`;};
   mkChart('pcipbc-c-ss',{type:'bar',data:{labels:ssData.map(x=>x.ss),datasets:[{label:'% PCI/PBC',data:ssData.map(x=>x.pct),backgroundColor:ssData.map(x=>cScaleG(x.pct,ssData)),borderRadius:4}]},
@@ -4626,7 +4633,7 @@ function grafPCIPBC(fd){
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const d=ssData[ctx.dataIndex];return [` ${ctx.raw.toFixed(1)}%`,` ${fmt(d.r)} PCI / ${fmt(d.p)} PBC`];}}}},
     scales:{x:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:9}}},y:{ticks:{font:{size:9}}}}}});
 
-  const pciVals=PY.map((y,i)=>fd.reduce((s,d)=>s+(d.r[i]||0),0));
+  const pciVals=PY.map((y,i)=>fd.reduce((s,d)=>s+(d.r||0),0));
   const pbcVals=PY.map(y=>fd.reduce((s,d)=>s+gp(d,y),0));
   mkChart('pcipbc-c-dual',{type:'bar',data:{labels:PY,datasets:[
     {label:'PCI',data:pciVals,backgroundColor:'rgba(142,68,173,0.7)',borderRadius:3,order:2},
@@ -4636,12 +4643,12 @@ function grafPCIPBC(fd){
     plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:12}},tooltip:{mode:'index',intersect:false}},
     scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>fmt(v),font:{size:9}},position:'left'},y2:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:9}},position:'right',grid:{display:false}}}}});
 
-  const byTipo={};fd.forEach(d=>{if(!byTipo[d.t])byTipo[d.t]={r:0,p:0};byTipo[d.t].r+=yi>=0?(d.r[yi]||0):(d.tr||0);byTipo[d.t].p+=gp(d,anio);});
+  const byTipo={};fd.forEach(d=>{if(!byTipo[d.t])byTipo[d.t]={r:0,p:0};byTipo[d.t].r+=yi>=0?(d.r||0):(d.tr||0);byTipo[d.t].p+=gp(d,anio);});
   const tipoData=Object.entries(byTipo).map(([t,v])=>({t,pct:v.p>0?parseFloat((v.r/v.p*100).toFixed(2)):0})).filter(x=>x.pct>0).sort((a,b)=>b.pct-a.pct);
   mkChart('pcipbc-c-tipo',{type:'bar',data:{labels:tipoData.map(x=>x.t),datasets:[{label:'% PCI/PBC',data:tipoData.map(x=>x.pct),backgroundColor:tipoData.map(x=>(TIPO_C[x.t]||'#999')+'CC'),borderRadius:4}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(1)}%`}}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:10}},beginAtZero:true}}}});
 
-  const byDep={};fd.forEach(d=>{const dep=d.dep.trim();if(!byDep[dep])byDep[dep]={r:0,p:0};byDep[dep].r+=yi>=0?(d.r[yi]||0):(d.tr||0);byDep[dep].p+=gp(d,anio);});
+  const byDep={};fd.forEach(d=>{const dep=d.dep.trim();if(!byDep[dep])byDep[dep]={r:0,p:0};byDep[dep].r+=yi>=0?(d.r||0):(d.tr||0);byDep[dep].p+=gp(d,anio);});
   const depData=Object.entries(byDep).map(([dep,v])=>({dep,pct:v.p>0?parseFloat((v.r/v.p*100).toFixed(2)):0})).filter(x=>x.pct>0).sort((a,b)=>b.pct-a.pct);
   mkChart('pcipbc-c-dep',{type:'bar',data:{labels:depData.map(x=>x.dep),datasets:[{label:'% PCI/PBC',data:depData.map(x=>x.pct),backgroundColor:depData.map(x=>(DEP_C[x.dep]||'#999')+'CC'),borderRadius:4}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(1)}%`}}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:10}},beginAtZero:true}}}});
@@ -4650,7 +4657,7 @@ function grafPCIPBC(fd){
   const ssTots={};allSS.forEach(ss=>{ssTots[ss]=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.tr||0)+gp(d,'total'),0);});
   const top15=allSS.sort((a,b)=>ssTots[b]-ssTots[a]).slice(0,15);
   mkChart('pcipbc-c-ss-linea',{type:'line',data:{labels:PY,datasets:top15.map((ss,i)=>({
-    label:ss,data:PY.map((y,j)=>{const r=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.r[j]||0),0);const p=fd.filter(d=>d.s===ss).reduce((s,d)=>s+gp(d,y),0);return p>0?parseFloat((r/p*100).toFixed(2)):null;}),
+    label:ss,data:PY.map((y,j)=>{const r=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.r||0),0);const p=fd.filter(d=>d.s===ss).reduce((s,d)=>s+gp(d,y),0);return p>0?parseFloat((r/p*100).toFixed(2)):null;}),
     borderColor:PAL[i%PAL.length],backgroundColor:'transparent',tension:0.3,pointRadius:5,pointHoverRadius:8,borderWidth:2,spanGaps:true}))},
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}},
@@ -4662,8 +4669,8 @@ function tablaPCIPBC(fd){
   const PY=PCI_YRS();
   const anio=F.anio==='total'||parseInt(F.anio)<2020?'total':F.anio;
   const yi=PY.indexOf(anio);
-  const conDatos=fd.filter(d=>{const r=yi>=0?(d.r[yi]||0):(d.tr||0);return r>0&&gp(d,anio)>0;});
-  const sorted=conDatos.map(d=>{const r=yi>=0?(d.r[yi]||0):(d.tr||0);const p=gp(d,anio);return {...d,_r:r,_p:p,_pct:p>0?r/p*100:0};}).sort((a,b)=>b._pct-a._pct).slice(0,100);
+  const conDatos=fd.filter(d=>{const r=yi>=0?(d.r||0):(d.tr||0);return r>0&&gp(d,anio)>0;});
+  const sorted=conDatos.map(d=>{const r=yi>=0?(d.r||0):(d.tr||0);const p=gp(d,anio);return {...d,_r:r,_p:p,_pct:p>0?r/p*100:0};}).sort((a,b)=>b._pct-a._pct).slice(0,100);
   const maxPct=sorted.length>0?sorted[0]._pct:1;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('pcipbc-badge-tabla',sorted.length+' establecimientos con PCI y PBC registrados · '+anio);
@@ -4760,18 +4767,18 @@ function kpisAbPBC(fd){
   const anio=F.anio;
   const yi=anio==='total'?-1:YEARS.indexOf(anio);
   const totAb=yi===-1?fd.reduce((s,d)=>s+d.tb,0):fd.reduce((s,d)=>s+(d.b[yi]||0),0);
-  const totPBC=yi===-1?fd.reduce((s,d)=>s+d.tp,0):fd.reduce((s,d)=>s+(d.p[yi]||0),0);
+  const totPBC=yi===-1?fd.reduce((s,d)=>s+d.tp,0):fd.reduce((s,d)=>s+(d.p||0),0);
   const pctNac=totPBC>0?(totAb/totPBC*100):0;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('abpbc-kpi-pct',pctNac.toFixed(1)+'%');
   set('abpbc-kpi-pct-sub',fmt(totAb)+' ab / '+fmt(totPBC)+' PBC');
-  const pctByYr=YEARS.map((y,i)=>{const b=fd.reduce((s,d)=>s+(d.b[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p[i]||0),0);return p>0?b/p*100:0;}).filter(v=>v>0);
+  const pctByYr=YEARS.map((y,i)=>{const b=fd.reduce((s,d)=>s+(d.b[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p||0),0);return p>0?b/p*100:0;}).filter(v=>v>0);
   const maxP=Math.max(...pctByYr),minP=Math.min(...pctByYr);
-  const allPcts=YEARS.map((y,i)=>{const b=fd.reduce((s,d)=>s+(d.b[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p[i]||0),0);return p>0?b/p*100:0;});
+  const allPcts=YEARS.map((y,i)=>{const b=fd.reduce((s,d)=>s+(d.b[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p||0),0);return p>0?b/p*100:0;});
   set('abpbc-kpi-best-yr',YEARS[allPcts.indexOf(maxP)]||'—');set('abpbc-kpi-best-yr-val',maxP.toFixed(1)+'%');
   set('abpbc-kpi-worst-yr',YEARS[allPcts.indexOf(minP)]||'—');set('abpbc-kpi-worst-yr-val',minP.toFixed(1)+'%');
   const bySS={};
-  fd.forEach(d=>{if(!bySS[d.s])bySS[d.s]={b:0,p:0};if(yi===-1){bySS[d.s].b+=d.tb;bySS[d.s].p+=d.tp;}else{bySS[d.s].b+=(d.b[yi]||0);bySS[d.s].p+=(d.p[yi]||0);}});
+  fd.forEach(d=>{if(!bySS[d.s])bySS[d.s]={b:0,p:0};if(yi===-1){bySS[d.s].b+=d.tb;bySS[d.s].p+=d.tp;}else{bySS[d.s].b+=(d.b[yi]||0);bySS[d.s].p+=(d.p||0);}});
   const ssPcts=Object.entries(bySS).map(([ss,v])=>({ss,pct:v.p>0?v.b/v.p*100:0})).filter(x=>x.pct>0).sort((a,b)=>b.pct-a.pct);
   if(ssPcts.length>0){
     set('abpbc-kpi-top-ss',ssNom(ssPcts[0].ss));set('abpbc-kpi-top-ss-val',ssPcts[0].pct.toFixed(1)+'%');
@@ -4783,7 +4790,7 @@ function kpisAbPBC(fd){
 function grafAbPBC(fd){
   const anio=F.anio;
   const yi=anio==='total'?-1:YEARS.indexOf(anio);
-  const pctV=YEARS.map((y,i)=>{const b=fd.reduce((s,d)=>s+(d.b[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p[i]||0),0);return p>0?parseFloat((b/p*100).toFixed(2)):0;});
+  const pctV=YEARS.map((y,i)=>{const b=fd.reduce((s,d)=>s+(d.b[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p||0),0);return p>0?parseFloat((b/p*100).toFixed(2)):0;});
   mkChart('abpbc-c-tend',{type:'line',data:{labels:YEARS,datasets:[{
     label:'% Ab/PBC',data:pctV,borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,0.08)',
     fill:true,tension:0.35,pointRadius:5,pointHoverRadius:8,borderWidth:3,
@@ -4793,7 +4800,7 @@ function grafAbPBC(fd){
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(2)}%`}}},
     scales:{x:{ticks:{font:{size:11,weight:'bold'}}},y:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:10}},beginAtZero:true}}}});
   const bySS={};
-  fd.forEach(d=>{if(!bySS[d.s])bySS[d.s]={b:0,p:0};if(yi===-1){bySS[d.s].b+=d.tb;bySS[d.s].p+=d.tp;}else{bySS[d.s].b+=(d.b[yi]||0);bySS[d.s].p+=(d.p[yi]||0);}});
+  fd.forEach(d=>{if(!bySS[d.s])bySS[d.s]={b:0,p:0};if(yi===-1){bySS[d.s].b+=d.tb;bySS[d.s].p+=d.tp;}else{bySS[d.s].b+=(d.b[yi]||0);bySS[d.s].p+=(d.p||0);}});
   const ssData=Object.entries(bySS).map(([ss,v])=>({ss,pct:v.p>0?parseFloat((v.b/v.p*100).toFixed(2)):0,b:v.b,p:v.p})).filter(x=>x.p>0).sort((a,b)=>b.pct-a.pct);
   const cScaleRed=(pct,arr)=>{const vals=arr.map(x=>x.pct),mn=Math.min(...vals),mx=Math.max(...vals);const n=(pct-mn)/(mx-mn||1);return `rgba(${Math.round(46+(208-46)*n)},${Math.round(139+(34-139)*n)},${Math.round(87+(42-87)*n)},0.8)`;};
   mkChart('abpbc-c-ss',{type:'bar',data:{labels:ssData.map(x=>x.ss),datasets:[{label:'% Ab/PBC',data:ssData.map(x=>x.pct),backgroundColor:ssData.map(x=>cScaleRed(x.pct,ssData)),borderRadius:4}]},
@@ -4801,7 +4808,7 @@ function grafAbPBC(fd){
     plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const d=ssData[ctx.dataIndex];return [` ${ctx.raw.toFixed(2)}%`,` ${fmt(d.b)} ab / ${fmt(d.p)} PBC`];}}}},
     scales:{x:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:9}}},y:{ticks:{font:{size:9}}}}}});
   const abVals=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.b[i]||0),0));
-  const pbcVals=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.p[i]||0),0));
+  const pbcVals=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.p||0),0));
   mkChart('abpbc-c-dual',{type:'bar',data:{labels:YEARS,datasets:[
     {label:'Abandonos',data:abVals,backgroundColor:'rgba(192,57,43,0.7)',borderRadius:3,order:2},
     {label:'PBC',data:pbcVals,backgroundColor:'rgba(46,139,87,0.3)',borderRadius:3,order:3},
@@ -4809,11 +4816,11 @@ function grafAbPBC(fd){
   ]},options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:12}},tooltip:{mode:'index',intersect:false}},
     scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>fmt(v),font:{size:9}},position:'left'},y2:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:9}},position:'right',grid:{display:false}}}}});
-  const byTipo={};fd.forEach(d=>{if(!byTipo[d.t])byTipo[d.t]={b:0,p:0};if(yi===-1){byTipo[d.t].b+=d.tb;byTipo[d.t].p+=d.tp;}else{byTipo[d.t].b+=(d.b[yi]||0);byTipo[d.t].p+=(d.p[yi]||0);}});
+  const byTipo={};fd.forEach(d=>{if(!byTipo[d.t])byTipo[d.t]={b:0,p:0};if(yi===-1){byTipo[d.t].b+=d.tb;byTipo[d.t].p+=d.tp;}else{byTipo[d.t].b+=(d.b[yi]||0);byTipo[d.t].p+=(d.p||0);}});
   const tipoData=Object.entries(byTipo).map(([t,v])=>({t,pct:v.p>0?parseFloat((v.b/v.p*100).toFixed(2)):0})).filter(x=>x.pct>0).sort((a,b)=>b.pct-a.pct);
   mkChart('abpbc-c-tipo',{type:'bar',data:{labels:tipoData.map(x=>x.t),datasets:[{label:'% Ab/PBC',data:tipoData.map(x=>x.pct),backgroundColor:tipoData.map(x=>(TIPO_C[x.t]||'#999')+'CC'),borderRadius:4}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(2)}%`}}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:10}},beginAtZero:true}}}});
-  const byDep={};fd.forEach(d=>{const dep=d.dep.trim();if(!byDep[dep])byDep[dep]={b:0,p:0};if(yi===-1){byDep[dep].b+=d.tb;byDep[dep].p+=d.tp;}else{byDep[dep].b+=(d.b[yi]||0);byDep[dep].p+=(d.p[yi]||0);}});
+  const byDep={};fd.forEach(d=>{const dep=d.dep.trim();if(!byDep[dep])byDep[dep]={b:0,p:0};if(yi===-1){byDep[dep].b+=d.tb;byDep[dep].p+=d.tp;}else{byDep[dep].b+=(d.b[yi]||0);byDep[dep].p+=(d.p||0);}});
   const depData=Object.entries(byDep).map(([dep,v])=>({dep,pct:v.p>0?parseFloat((v.b/v.p*100).toFixed(2)):0})).filter(x=>x.pct>0).sort((a,b)=>b.pct-a.pct);
   mkChart('abpbc-c-dep',{type:'bar',data:{labels:depData.map(x=>x.dep),datasets:[{label:'% Ab/PBC',data:depData.map(x=>x.pct),backgroundColor:depData.map(x=>(DEP_C[x.dep]||'#999')+'CC'),borderRadius:4}]},
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toFixed(2)}%`}}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v.toFixed(1)+'%',font:{size:10}},beginAtZero:true}}}});
@@ -4821,7 +4828,7 @@ function grafAbPBC(fd){
   const ssTots={};allSS.forEach(ss=>{ssTots[ss]=fd.filter(d=>d.s===ss).reduce((s,d)=>s+d.tb+d.tp,0);});
   const top15=allSS.sort((a,b)=>ssTots[b]-ssTots[a]).slice(0,15);
   mkChart('abpbc-c-ss-linea',{type:'line',data:{labels:YEARS,datasets:top15.map((ss,i)=>({
-    label:ss,data:YEARS.map((y,j)=>{const b=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.b[j]||0),0);const p=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.p[j]||0),0);return p>0?parseFloat((b/p*100).toFixed(2)):null;}),
+    label:ss,data:YEARS.map((y,j)=>{const b=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.b[j]||0),0);const p=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.p||0),0);return p>0?parseFloat((b/p*100).toFixed(2)):null;}),
     borderColor:PAL[i%PAL.length],backgroundColor:'transparent',tension:0.3,pointRadius:5,pointHoverRadius:8,borderWidth:2,spanGaps:true}))},
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}},
@@ -4832,8 +4839,8 @@ function grafAbPBC(fd){
 function tablaAbPBC(fd){
   const anio=F.anio;
   const yi=anio==='total'?-1:YEARS.indexOf(anio);
-  const conPBC=fd.filter(d=>yi===-1?d.tp>0:(d.p[yi]||0)>0);
-  const sorted=conPBC.map(d=>{const b=yi===-1?d.tb:(d.b[yi]||0);const p=yi===-1?d.tp:(d.p[yi]||0);return {...d,_b:b,_p:p,_pct:p>0?b/p*100:0};}).sort((a,b)=>b._pct-a._pct).slice(0,100);
+  const conPBC=fd.filter(d=>yi===-1?d.tp>0:(d.p||0)>0);
+  const sorted=conPBC.map(d=>{const b=yi===-1?d.tb:(d.b[yi]||0);const p=yi===-1?d.tp:(d.p||0);return {...d,_b:b,_p:p,_pct:p>0?b/p*100:0};}).sort((a,b)=>b._pct-a._pct).slice(0,100);
   const maxPct=sorted.length>0?sorted[0]._pct:1;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('abpbc-badge-tabla',sorted.length+' establecimientos con PBC > 0');
@@ -5157,6 +5164,96 @@ function grafProp(fd){
       }
     },
     scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v!=null?v.toFixed(1)+'%':'',font:{size:10}},beginAtZero:true}}}});
+
+  // === DONUT: Composición Controles vs IPG ===
+  const _totCtrlD = yi===-1 ? fd.reduce((s,d)=>s+d.tk,0) : fd.reduce((s,d)=>s+(d.k[yi]||0),0);
+  const _totIPGd  = yi===-1 ? fd.reduce((s,d)=>s+d.tg,0) : fd.reduce((s,d)=>s+(d.g[yi]||0),0);
+  const _totalD   = _totCtrlD + _totIPGd;
+
+  // Plugin custom para líneas conectoras externas
+  const donutLabelPlugin = {
+    id:'donutLabelProp',
+    afterDraw(chart){
+      const {ctx, chartArea:{width,height}} = chart;
+      const meta = chart.getDatasetMeta(0);
+      if(!meta || !meta.data || meta.data.length < 2) return;
+      const colors = ['#1A5F8A','#E07B39'];
+      const total  = _totalD;
+      if(total === 0) return;
+      ctx.save();
+      meta.data.forEach((arc, i) => {
+        const val = chart.data.datasets[0].data[i];
+        const pct = (val / total * 100).toFixed(1) + '%';
+        const outerRadius = arc.outerRadius;
+        const cx = arc.x, cy = arc.y;
+        // Ángulo: segmento 0 (Controles, grande) fijo en -30°; segmento 1 (IPG) desde arco real
+        let midAngle;
+        if(i === 0){
+          midAngle = -Math.PI / 6;
+        } else {
+          midAngle = (arc.startAngle + arc.endAngle) / 2;
+        }
+        const cos = Math.cos(midAngle), sin = Math.sin(midAngle);
+        const x1 = cx + cos * (outerRadius + 4);
+        const y1 = cy + sin * (outerRadius + 4);
+        const x2 = cx + cos * (outerRadius + 22);
+        const y2 = cy + sin * (outerRadius + 22);
+        const side = (i === 0 || Math.cos(midAngle) >= 0) ? 1 : -1;
+        const x3 = x2 + side * 18;
+        const y3 = y2;
+        ctx.strokeStyle = colors[i];
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.lineTo(x3, y3);
+        ctx.stroke();
+        ctx.fillStyle = colors[i];
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = side === 1 ? 'left' : 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(pct, x3 + side * 4, y3);
+      });
+      ctx.restore();
+    }
+  };
+
+  if(charts['prop-c-dona-ipg']) charts['prop-c-dona-ipg'].destroy();
+  charts['prop-c-dona-ipg'] = new Chart(
+    document.getElementById('prop-c-dona-ipg').getContext('2d'),
+    {
+      type:'doughnut',
+      plugins:[donutLabelPlugin],
+      data:{
+        labels:['Controles Individuales APS','Intervención Psicosocial Grupal (IPG)'],
+        datasets:[{
+          data:[_totCtrlD, _totIPGd],
+          backgroundColor:['#1A5F8A','#E07B39'],
+          borderColor:'#fff',
+          borderWidth:3,
+          hoverOffset:8,
+          cutout:'62%'
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        cutout:'62%',
+        layout:{padding:{top:30,bottom:30,left:50,right:50}},
+        plugins:{
+          legend:{position:'bottom',labels:{font:{size:11},boxWidth:14,padding:12}},
+          datalabels:{display:false},
+          tooltip:{callbacks:{
+            label:ctx=>{
+              const val=ctx.raw;
+              const pct=(val/total*100).toFixed(1);
+              return ` ${ctx.label}: ${fmt(val)} (${pct}%)`;
+            }
+          }}
+        }
+      }
+    }
+  );
 }
 
 function tablaProp(fd){
@@ -5266,21 +5363,21 @@ function actualizarMapaAct(){actualizarMapa('act','act');}
 // ============================================================
 // CONCENTRACIÓN ACTIVIDADES / PBC
 // ============================================================
-function getConc(actArr,pbcArr,idx){
-  // idx = YEARS index, or -1 for total
+function getConc(actArr,pbcVal,idx){
+  // pbcVal es valor único (jun2026), actArr es array por mes
+  const totP = typeof pbcVal==='number' ? pbcVal : (pbcVal||[]).reduce((s,v)=>s+v,0);
   if(idx===-1){
     const totA=actArr.reduce((s,v)=>s+v,0);
-    const totP=pbcArr.reduce((s,v)=>s+v,0);
     return totP>0?totA/totP:0;
   }
-  return pbcArr[idx]>0?actArr[idx]/pbcArr[idx]:0;
+  return totP>0?(actArr[idx]||0)/totP:0;
 }
 
 function kpisConc(fd){
   const anio=F.anio;
   const yi=anio==='total'?-1:YEARS.indexOf(anio);
   const totA=yi===-1?fd.reduce((s,d)=>s+d.tv,0):fd.reduce((s,d)=>s+(d.v[yi]||0),0);
-  const totP=yi===-1?fd.reduce((s,d)=>s+d.tp,0):fd.reduce((s,d)=>s+(d.p[yi]||0),0);
+  const totP=yi===-1?fd.reduce((s,d)=>s+d.tp,0):fd.reduce((s,d)=>s+(d.p||0),0);
   const concNac=totP>0?(totA/totP):0;
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('conc-kpi-prom',concNac.toFixed(2));
@@ -5288,12 +5385,12 @@ function kpisConc(fd){
   // By year
   const byYr=YEARS.map((y,i)=>{
     const a=fd.reduce((s,d)=>s+(d.v[i]||0),0);
-    const p=fd.reduce((s,d)=>s+(d.p[i]||0),0);
+    const p=fd.reduce((s,d)=>s+(d.p||0),0);
     return p>0?a/p:0;
   }).filter(v=>v>0);
   const maxC=Math.max(...byYr), minC=Math.min(...byYr);
-  const maxYr=YEARS[YEARS.map((y,i)=>{const a=fd.reduce((s,d)=>s+(d.v[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p[i]||0),0);return p>0?a/p:0;}).indexOf(maxC)];
-  const minYr=YEARS[YEARS.map((y,i)=>{const a=fd.reduce((s,d)=>s+(d.v[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p[i]||0),0);return p>0?a/p:0;}).indexOf(minC)];
+  const maxYr=YEARS[YEARS.map((y,i)=>{const a=fd.reduce((s,d)=>s+(d.v[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p||0),0);return p>0?a/p:0;}).indexOf(maxC)];
+  const minYr=YEARS[YEARS.map((y,i)=>{const a=fd.reduce((s,d)=>s+(d.v[i]||0),0);const p=fd.reduce((s,d)=>s+(d.p||0),0);return p>0?a/p:0;}).indexOf(minC)];
   set('conc-kpi-best-yr',maxYr||'—');set('conc-kpi-best-yr-val',maxC.toFixed(2)+' act/persona');
   set('conc-kpi-worst-yr',minYr||'—');set('conc-kpi-worst-yr-val',minC.toFixed(2)+' act/persona');
   // By SS
@@ -5301,7 +5398,7 @@ function kpisConc(fd){
   fd.forEach(d=>{
     if(!bySS[d.s])bySS[d.s]={a:0,p:0};
     if(yi===-1){bySS[d.s].a+=d.tv;bySS[d.s].p+=d.tp;}
-    else{bySS[d.s].a+=(d.v[yi]||0);bySS[d.s].p+=(d.p[yi]||0);}
+    else{bySS[d.s].a+=(d.v[yi]||0);bySS[d.s].p+=(d.p||0);}
   });
   const ssPcts=Object.entries(bySS).map(([ss,v])=>({ss,c:v.p>0?v.a/v.p:0})).filter(x=>x.c>0).sort((a,b)=>b.c-a.c);
   if(ssPcts.length>0){
@@ -5317,7 +5414,7 @@ function grafConc(fd){
   // Tendencia
   const concVals=YEARS.map((y,i)=>{
     const a=fd.reduce((s,d)=>s+(d.v[i]||0),0);
-    const p=fd.reduce((s,d)=>s+(d.p[i]||0),0);
+    const p=fd.reduce((s,d)=>s+(d.p||0),0); // p es valor único jun2026
     return p>0?parseFloat((a/p).toFixed(2)):0;
   });
   mkChart('conc-c-tend',{type:'line',data:{labels:YEARS,datasets:[{
@@ -5335,7 +5432,7 @@ function grafConc(fd){
   fd.forEach(d=>{
     if(!bySS[d.s])bySS[d.s]={a:0,p:0};
     if(yi===-1){bySS[d.s].a+=d.tv;bySS[d.s].p+=d.tp;}
-    else{bySS[d.s].a+=(d.v[yi]||0);bySS[d.s].p+=(d.p[yi]||0);}
+    else{bySS[d.s].a+=(d.v[yi]||0);bySS[d.s].p+=(d.p||0);}
   });
   const ssData=Object.entries(bySS).map(([ss,v])=>({ss,c:v.p>0?parseFloat((v.a/v.p).toFixed(2)):0,a:v.a,p:v.p})).filter(x=>x.p>0).sort((a,b)=>b.c-a.c);
   const cScale=(c,arr)=>{const vals=arr.map(x=>x.c),mn=Math.min(...vals),mx=Math.max(...vals);const n=(c-mn)/(mx-mn||1);return `rgba(${Math.round(208-(208-46)*n)},${Math.round(34+(139-34)*n)},${Math.round(42+(87-42)*n)},0.8)`;};
@@ -5348,7 +5445,7 @@ function grafConc(fd){
 
   // Dual
   const actVals=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.v[i]||0),0));
-  const pbcVals=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.p[i]||0),0));
+  const pbcVals=YEARS.map((y,i)=>fd.reduce((s,d)=>s+(d.p||0),0));
   mkChart('conc-c-dual',{type:'bar',data:{labels:YEARS,datasets:[
     {label:'Actividades SM',data:actVals,backgroundColor:'rgba(231,76,60,0.6)',borderRadius:3,order:2},
     {label:'PBC',data:pbcVals,backgroundColor:'rgba(46,139,87,0.4)',borderRadius:3,order:3},
@@ -5360,7 +5457,7 @@ function grafConc(fd){
 
   // Tipo
   const byTipo={};
-  fd.forEach(d=>{if(!byTipo[d.t])byTipo[d.t]={a:0,p:0};if(yi===-1){byTipo[d.t].a+=d.tv;byTipo[d.t].p+=d.tp;}else{byTipo[d.t].a+=(d.v[yi]||0);byTipo[d.t].p+=(d.p[yi]||0);}});
+  fd.forEach(d=>{if(!byTipo[d.t])byTipo[d.t]={a:0,p:0};if(yi===-1){byTipo[d.t].a+=d.tv;byTipo[d.t].p+=d.tp;}else{byTipo[d.t].a+=(d.v[yi]||0);byTipo[d.t].p+=(d.p||0);}});
   const tipoData=Object.entries(byTipo).map(([t,v])=>({t,c:v.p>0?parseFloat((v.a/v.p).toFixed(2)):0})).filter(x=>x.c>0).sort((a,b)=>b.c-a.c);
   mkChart('conc-c-tipo',{type:'bar',data:{labels:tipoData.map(x=>x.t),datasets:[{
     label:'Concentración',data:tipoData.map(x=>x.c),backgroundColor:tipoData.map(x=>(TIPO_C[x.t]||'#999')+'CC'),borderRadius:4}]},
@@ -5370,7 +5467,7 @@ function grafConc(fd){
 
   // Dep
   const byDep={};
-  fd.forEach(d=>{const dep=d.dep.trim();if(!byDep[dep])byDep[dep]={a:0,p:0};if(yi===-1){byDep[dep].a+=d.tv;byDep[dep].p+=d.tp;}else{byDep[dep].a+=(d.v[yi]||0);byDep[dep].p+=(d.p[yi]||0);}});
+  fd.forEach(d=>{const dep=d.dep.trim();if(!byDep[dep])byDep[dep]={a:0,p:0};if(yi===-1){byDep[dep].a+=d.tv;byDep[dep].p+=d.tp;}else{byDep[dep].a+=(d.v[yi]||0);byDep[dep].p+=(d.p||0);}});
   const depData=Object.entries(byDep).map(([dep,v])=>({dep,c:v.p>0?parseFloat((v.a/v.p).toFixed(2)):0})).filter(x=>x.c>0).sort((a,b)=>b.c-a.c);
   mkChart('conc-c-dep',{type:'bar',data:{labels:depData.map(x=>x.dep),datasets:[{
     label:'Concentración',data:depData.map(x=>x.c),backgroundColor:depData.map(x=>(DEP_C[x.dep]||'#999')+'CC'),borderRadius:4}]},
@@ -5385,7 +5482,7 @@ function grafConc(fd){
   const ssLineDs=top15.map((ss,i)=>{
     const vals=YEARS.map((y,j)=>{
       const a=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.v[j]||0),0);
-      const p=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.p[j]||0),0);
+      const p=fd.filter(d=>d.s===ss).reduce((s,d)=>s+(d.p||0),0);
       return p>0?parseFloat((a/p).toFixed(2)):null;
     });
     return {label:ss,data:vals,borderColor:PAL[i%PAL.length],backgroundColor:'transparent',tension:0.3,pointRadius:5,pointHoverRadius:8,borderWidth:2,spanGaps:true};
@@ -5403,10 +5500,10 @@ function grafConc(fd){
 function tablaConc(fd){
   const anio=F.anio;
   const yi=anio==='total'?-1:YEARS.indexOf(anio);
-  const conPBC=fd.filter(d=>yi===-1?d.tp>0:(d.p[yi]||0)>0);
+  const conPBC=fd.filter(d=>yi===-1?d.tp>0:(d.p||0)>0);
   const sorted=conPBC.map(d=>{
     const a=yi===-1?d.tv:(d.v[yi]||0);
-    const p=yi===-1?d.tp:(d.p[yi]||0);
+    const p=yi===-1?d.tp:(d.p||0);
     return {...d,_a:a,_p:p,_c:p>0?a/p:0};
   }).sort((a,b)=>b._c-a._c).slice(0,100);
   const maxC=sorted.length>0?sorted[0]._c:1;
@@ -5789,7 +5886,7 @@ function renderFicha(){
   set('ficha-kpi-res',resVal.toFixed(1)+'%');
   // PCI (total acumulado 2020-2026)
   const pciVal=fd.reduce((s,d)=>s+(d.tr||0),0);
-  const pci2026=fd.reduce((s,d)=>s+(d.r&&d.r[5]?d.r[5]:0),0);
+  const pci2026=fd.reduce((s,d)=>s+(d.r&&d.r?d.r:0),0);
   const pbc2026f=fd.reduce((s,d)=>s+gp(d,'total'),0);
   const pcipbcVal=pbc2026f>0?(pci2026/pbc2026f*100):0;
   set('ficha-lbl-pci','PCI 2020–2026');
@@ -5904,7 +6001,7 @@ function renderFicha(){
 
   // PCI mini chart (2020-2026 only)
   const PY=PCI_YRS();
-  const pciMV=PY.map((y,i)=>fd.reduce((s,d)=>s+(d.r&&d.r[i]?d.r[i]:0),0));
+  const pciMV=PY.map((y,i)=>fd.reduce((s,d)=>s+(d.r&&d.r?d.r:0),0));
   if(fichaCharts.pci)fichaCharts.pci.destroy();
   const cPci=document.getElementById('ficha-c-pci');
   if(cPci) fichaCharts.pci=new Chart(cPci.getContext('2d'),{
@@ -5913,7 +6010,7 @@ function renderFicha(){
     options:mOpts(false)});
 
   // % PCI/PBC mini chart (2020-2026)
-  const pcipbcMV=PY.map((y,i)=>{const r=fd.reduce((s,d)=>s+(d.r&&d.r[i]?d.r[i]:0),0);const p=fd.reduce((s,d)=>s+gp(d,y),0);return p>0?parseFloat((r/p*100).toFixed(2)):0;});
+  const pcipbcMV=PY.map((y,i)=>{const r=fd.reduce((s,d)=>s+(d.r&&d.r?d.r:0),0);const p=fd.reduce((s,d)=>s+gp(d,y),0);return p>0?parseFloat((r/p*100).toFixed(2)):0;});
   if(fichaCharts.pcipbc)fichaCharts.pcipbc.destroy();
   const cPcipbc=document.getElementById('ficha-c-pcipbc');
   if(cPcipbc) fichaCharts.pcipbc=new Chart(cPcipbc.getContext('2d'),{
