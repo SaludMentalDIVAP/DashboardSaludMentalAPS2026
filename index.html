@@ -3672,6 +3672,49 @@ function grafInd(fd) {
           title:items=>`${items[0].dataset.label} · Año ${items[0].label}`
         }}},
     scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v!=null?v.toFixed(1)+'%':'',font:{size:10}},beginAtZero:true}}}});
+
+  // DONUT composición controles vs IPG
+  const yi2=YEARS.indexOf(String(F.anio));
+  const _totCtrlD=yi2===-1?fd.reduce((s,d)=>s+d.tk,0):fd.reduce((s,d)=>s+(d.k[yi2]||0),0);
+  const _totIPGd =yi2===-1?fd.reduce((s,d)=>s+d.tg,0):fd.reduce((s,d)=>s+(d.g[yi2]||0),0);
+  const _totalD  =_totCtrlD+_totIPGd;
+  const donutLabelPlugin={id:'donutLabelProp',afterDraw(chart){
+    const {ctx}=chart;const meta=chart.getDatasetMeta(0);
+    if(!meta||!meta.data||meta.data.length<2)return;
+    const colors=['#1A5F8A','#E07B39'];
+    if(_totalD===0)return;
+    ctx.save();
+    meta.data.forEach((arc,i)=>{
+      const val=chart.data.datasets[0].data[i];
+      const pct=(val/_totalD*100).toFixed(1)+'%';
+      const outerRadius=arc.outerRadius,cx=arc.x,cy=arc.y;
+      const midAngle=i===0?-Math.PI/6:(arc.startAngle+arc.endAngle)/2;
+      const cos=Math.cos(midAngle),sin=Math.sin(midAngle);
+      const x1=cx+cos*(outerRadius+4),y1=cy+sin*(outerRadius+4);
+      const x2=cx+cos*(outerRadius+22),y2=cy+sin*(outerRadius+22);
+      const side=(i===0||Math.cos(midAngle)>=0)?1:-1;
+      const x3=x2+side*18,y3=y2;
+      ctx.strokeStyle=colors[i];ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.stroke();
+      ctx.fillStyle=colors[i];ctx.font='bold 12px sans-serif';
+      ctx.textAlign=side===1?'left':'right';ctx.textBaseline='middle';
+      ctx.fillText(pct,x3+side*4,y3);
+    });
+    ctx.restore();
+  }};
+  if(charts['prop-c-dona-ipg'])charts['prop-c-dona-ipg'].destroy();
+  charts['prop-c-dona-ipg']=new Chart(document.getElementById('prop-c-dona-ipg').getContext('2d'),{
+    type:'doughnut',plugins:[donutLabelPlugin],
+    data:{labels:['Controles Individuales APS','Intervención Psicosocial Grupal (IPG)'],
+      datasets:[{data:[_totCtrlD,_totIPGd],backgroundColor:['#1A5F8A','#E07B39'],
+        borderColor:'#fff',borderWidth:3,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      layout:{padding:{top:30,bottom:30,left:50,right:50}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:14,padding:12}},
+        datalabels:{display:false},
+        tooltip:{callbacks:{label:ctx=>{const v=ctx.raw;const p=(v/_totalD*100).toFixed(1);return ` ${ctx.label}: ${fmt(v)} (${p}%)`;}}}}
+    }
+  });
 }
 
 function pctColor(pct,arr) {
@@ -4657,6 +4700,49 @@ function grafPCIPBC(fd){
     plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}},
       tooltip:{mode:'nearest',intersect:true,callbacks:{label:ctx=>ctx.raw!=null?` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`:null,title:items=>`${items[0].dataset.label} · ${items[0].label}`}}},
     scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v!=null?v.toFixed(1)+'%':'',font:{size:10}},beginAtZero:true}}}});
+
+  // DONUT composición controles vs IPG
+  const yi2=YEARS.indexOf(String(F.anio));
+  const _totCtrlD=yi2===-1?fd.reduce((s,d)=>s+d.tk,0):fd.reduce((s,d)=>s+(d.k[yi2]||0),0);
+  const _totIPGd =yi2===-1?fd.reduce((s,d)=>s+d.tg,0):fd.reduce((s,d)=>s+(d.g[yi2]||0),0);
+  const _totalD  =_totCtrlD+_totIPGd;
+  const donutLabelPlugin={id:'donutLabelProp',afterDraw(chart){
+    const {ctx}=chart;const meta=chart.getDatasetMeta(0);
+    if(!meta||!meta.data||meta.data.length<2)return;
+    const colors=['#1A5F8A','#E07B39'];
+    if(_totalD===0)return;
+    ctx.save();
+    meta.data.forEach((arc,i)=>{
+      const val=chart.data.datasets[0].data[i];
+      const pct=(val/_totalD*100).toFixed(1)+'%';
+      const outerRadius=arc.outerRadius,cx=arc.x,cy=arc.y;
+      const midAngle=i===0?-Math.PI/6:(arc.startAngle+arc.endAngle)/2;
+      const cos=Math.cos(midAngle),sin=Math.sin(midAngle);
+      const x1=cx+cos*(outerRadius+4),y1=cy+sin*(outerRadius+4);
+      const x2=cx+cos*(outerRadius+22),y2=cy+sin*(outerRadius+22);
+      const side=(i===0||Math.cos(midAngle)>=0)?1:-1;
+      const x3=x2+side*18,y3=y2;
+      ctx.strokeStyle=colors[i];ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.stroke();
+      ctx.fillStyle=colors[i];ctx.font='bold 12px sans-serif';
+      ctx.textAlign=side===1?'left':'right';ctx.textBaseline='middle';
+      ctx.fillText(pct,x3+side*4,y3);
+    });
+    ctx.restore();
+  }};
+  if(charts['prop-c-dona-ipg'])charts['prop-c-dona-ipg'].destroy();
+  charts['prop-c-dona-ipg']=new Chart(document.getElementById('prop-c-dona-ipg').getContext('2d'),{
+    type:'doughnut',plugins:[donutLabelPlugin],
+    data:{labels:['Controles Individuales APS','Intervención Psicosocial Grupal (IPG)'],
+      datasets:[{data:[_totCtrlD,_totIPGd],backgroundColor:['#1A5F8A','#E07B39'],
+        borderColor:'#fff',borderWidth:3,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      layout:{padding:{top:30,bottom:30,left:50,right:50}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:14,padding:12}},
+        datalabels:{display:false},
+        tooltip:{callbacks:{label:ctx=>{const v=ctx.raw;const p=(v/_totalD*100).toFixed(1);return ` ${ctx.label}: ${fmt(v)} (${p}%)`;}}}}
+    }
+  });
 }
 
 function tablaPCIPBC(fd){
@@ -4828,6 +4914,49 @@ function grafAbPBC(fd){
     plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}},
       tooltip:{mode:'nearest',intersect:true,callbacks:{label:ctx=>ctx.raw!=null?` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`:null,title:items=>`${items[0].dataset.label} · Año ${items[0].label}`}}},
     scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v!=null?v.toFixed(1)+'%':'',font:{size:10}},beginAtZero:true}}}});
+
+  // DONUT composición controles vs IPG
+  const yi2=YEARS.indexOf(String(F.anio));
+  const _totCtrlD=yi2===-1?fd.reduce((s,d)=>s+d.tk,0):fd.reduce((s,d)=>s+(d.k[yi2]||0),0);
+  const _totIPGd =yi2===-1?fd.reduce((s,d)=>s+d.tg,0):fd.reduce((s,d)=>s+(d.g[yi2]||0),0);
+  const _totalD  =_totCtrlD+_totIPGd;
+  const donutLabelPlugin={id:'donutLabelProp',afterDraw(chart){
+    const {ctx}=chart;const meta=chart.getDatasetMeta(0);
+    if(!meta||!meta.data||meta.data.length<2)return;
+    const colors=['#1A5F8A','#E07B39'];
+    if(_totalD===0)return;
+    ctx.save();
+    meta.data.forEach((arc,i)=>{
+      const val=chart.data.datasets[0].data[i];
+      const pct=(val/_totalD*100).toFixed(1)+'%';
+      const outerRadius=arc.outerRadius,cx=arc.x,cy=arc.y;
+      const midAngle=i===0?-Math.PI/6:(arc.startAngle+arc.endAngle)/2;
+      const cos=Math.cos(midAngle),sin=Math.sin(midAngle);
+      const x1=cx+cos*(outerRadius+4),y1=cy+sin*(outerRadius+4);
+      const x2=cx+cos*(outerRadius+22),y2=cy+sin*(outerRadius+22);
+      const side=(i===0||Math.cos(midAngle)>=0)?1:-1;
+      const x3=x2+side*18,y3=y2;
+      ctx.strokeStyle=colors[i];ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.stroke();
+      ctx.fillStyle=colors[i];ctx.font='bold 12px sans-serif';
+      ctx.textAlign=side===1?'left':'right';ctx.textBaseline='middle';
+      ctx.fillText(pct,x3+side*4,y3);
+    });
+    ctx.restore();
+  }};
+  if(charts['prop-c-dona-ipg'])charts['prop-c-dona-ipg'].destroy();
+  charts['prop-c-dona-ipg']=new Chart(document.getElementById('prop-c-dona-ipg').getContext('2d'),{
+    type:'doughnut',plugins:[donutLabelPlugin],
+    data:{labels:['Controles Individuales APS','Intervención Psicosocial Grupal (IPG)'],
+      datasets:[{data:[_totCtrlD,_totIPGd],backgroundColor:['#1A5F8A','#E07B39'],
+        borderColor:'#fff',borderWidth:3,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      layout:{padding:{top:30,bottom:30,left:50,right:50}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:14,padding:12}},
+        datalabels:{display:false},
+        tooltip:{callbacks:{label:ctx=>{const v=ctx.raw;const p=(v/_totalD*100).toFixed(1);return ` ${ctx.label}: ${fmt(v)} (${p}%)`;}}}}
+    }
+  });
 }
 
 function tablaAbPBC(fd){
@@ -5160,8 +5289,9 @@ function grafProp(fd){
     scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v!=null?v.toFixed(1)+'%':'',font:{size:10}},beginAtZero:true}}}});
 
   // DONUT composición controles vs IPG
-  const _totCtrlD=yi===-1?fd.reduce((s,d)=>s+d.tk,0):fd.reduce((s,d)=>s+(d.k[yi]||0),0);
-  const _totIPGd =yi===-1?fd.reduce((s,d)=>s+d.tg,0):fd.reduce((s,d)=>s+(d.g[yi]||0),0);
+  const yi2=YEARS.indexOf(String(F.anio));
+  const _totCtrlD=yi2===-1?fd.reduce((s,d)=>s+d.tk,0):fd.reduce((s,d)=>s+(d.k[yi2]||0),0);
+  const _totIPGd =yi2===-1?fd.reduce((s,d)=>s+d.tg,0):fd.reduce((s,d)=>s+(d.g[yi2]||0),0);
   const _totalD  =_totCtrlD+_totIPGd;
   const donutLabelPlugin={id:'donutLabelProp',afterDraw(chart){
     const {ctx}=chart;const meta=chart.getDatasetMeta(0);
@@ -5200,20 +5330,6 @@ function grafProp(fd){
         tooltip:{callbacks:{label:ctx=>{const v=ctx.raw;const p=(v/_totalD*100).toFixed(1);return ` ${ctx.label}: ${fmt(v)} (${p}%)`;}}}}
     }
   });
-},options:{
-    responsive:true,maintainAspectRatio:false,
-    plugins:{
-      legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}},
-      tooltip:{
-        mode:'index',intersect:false,
-        itemSort:(a,b)=>(b.raw||0)-(a.raw||0),
-        callbacks:{
-          label:ctx=>ctx.raw!=null?` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`:null,
-          title:items=>`Año ${items[0].label}`
-        }
-      }
-    },
-    scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v!=null?v.toFixed(1)+'%':'',font:{size:10}},beginAtZero:true}}}});
 }
 
 function tablaProp(fd){
