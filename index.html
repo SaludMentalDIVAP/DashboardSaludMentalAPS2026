@@ -6025,11 +6025,16 @@ window.addEventListener('load',function(){
       // Parse in chunks using setTimeout to avoid blocking UI
       if(msgEl) msgEl.textContent='Inicializando dashboard...';
       setTimeout(()=>{
-        window._parseDatos(pkg);
-        if(!window.DATA || !window.DATA.length) throw new Error('No data');
-        init();
-        const ov=document.getElementById('loading-overlay');
-        if(ov){ov.style.opacity='0';ov.style.transition='opacity .5s';setTimeout(()=>ov.remove(),500);}
+        try {
+          window._parseDatos(pkg);
+          if(!window.DATA || !window.DATA.length) throw new Error('No data tras _parseDatos');
+          init();
+          const ov=document.getElementById('loading-overlay');
+          if(ov){ov.style.opacity='0';ov.style.transition='opacity .5s';setTimeout(()=>ov.remove(),500);}
+        } catch(err2) {
+          const ov=document.getElementById('loading-overlay');
+          if(ov) ov.innerHTML='<div style="text-align:center;padding:40px;color:white"><div style="font-size:28px">⚠️</div><div style="font-size:15px;font-weight:700;margin:10px 0">Error: '+err2.message+'</div><div style="font-size:11px;background:rgba(0,0,0,.4);padding:10px;border-radius:6px;text-align:left;font-family:monospace;white-space:pre-wrap">'+err2.stack+'</div></div>';
+        }
       },50);
     })
     .catch(e=>{
