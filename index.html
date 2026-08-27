@@ -5144,7 +5144,20 @@ function grafProp(fd){
     });
     return {label:ss,data:vals,borderColor:PAL[i%PAL.length],backgroundColor:'transparent',tension:0.3,pointRadius:5,pointHoverRadius:8,borderWidth:2,spanGaps:true};
   });
-  mkChart('prop-c-ss-linea',{type:'line',data:{labels:YEARS,datasets:ssLineDs
+  mkChart('prop-c-ss-linea',{type:'line',data:{labels:YEARS,datasets:ssLineDs},options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom',labels:{font:{size:9},boxWidth:10,padding:5}},
+      tooltip:{
+        mode:'index',intersect:false,
+        itemSort:(a,b)=>(b.raw||0)-(a.raw||0),
+        callbacks:{
+          label:ctx=>ctx.raw!=null?` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`:null,
+          title:items=>`Mes ${items[0].label}`
+        }
+      }
+    },
+    scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>v!=null?v.toFixed(1)+'%':'',font:{size:10}},beginAtZero:true}}}});
 
   // DONUT composición controles vs IPG
   const _totCtrlD=yi===-1?fd.reduce((s,d)=>s+d.tk,0):fd.reduce((s,d)=>s+(d.k[yi]||0),0);
