@@ -3487,7 +3487,7 @@ function grafPBC(fd) {
     pointRadius:5,pointHoverRadius:8,borderWidth:3,
     pointBackgroundColor:tendVals.map(v=>v===Math.max(...tendVals)?'#005F9E':'#2E8B57'),
     pointBorderColor:'#fff',pointBorderWidth:2
-  }]},options:barOpts(false,v=>fmt(v),false,tendVals)});
+  }]},options:barOpts(false,v=>fmt(v),true,tendVals)});
 
   const ssTot={};fd.forEach(d=>{ssTot[d.s]=(ssTot[d.s]||0)+getPBC(d,anio);});
   const ssSort=Object.entries(ssTot).sort((a,b)=>b[1]-a[1]);
@@ -3689,18 +3689,22 @@ function pctColor(pct,arr) {
 // ============================================================
 function barOpts(horizontal, tickCb, hasAnno, vals) {
   return {responsive:true,maintainAspectRatio:false,
+    layout:{padding:{top:48}},
     plugins:{
       legend:{display:false},
       tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.raw)}`}},
       datalabels:{
-        display:ctx=>ctx.chart.config.type==='bar',
-        anchor:'end',
-        align:'top',
-        offset:2,
-        color:'#1A2A3A',
+        display:ctx=>ctx.chart.config.type==='bar'||(hasAnno&&ctx.chart.config.type==='line'),
+        anchor:ctx=>ctx.chart.config.type==='line'?'end':'end',
+        align:ctx=>ctx.chart.config.type==='line'?'top':'top',
+        offset:ctx=>ctx.chart.config.type==='line'?4:2,
+        color:ctx=>ctx.chart.config.type==='line'?'#003F6B':'#1A2A3A',
         font:{size:9,weight:'bold'},
         formatter:(v)=>v>0?fmt(Math.round(v)):'',
-        clip:false
+        clip:false,
+        backgroundColor:ctx=>ctx.chart.config.type==='line'?'rgba(255,255,255,0.82)':null,
+        borderRadius:ctx=>ctx.chart.config.type==='line'?3:0,
+        padding:ctx=>ctx.chart.config.type==='line'?{top:2,bottom:2,left:3,right:3}:0
       }
     },
     scales:{
@@ -4200,9 +4204,7 @@ function grafIng(fd){
     fill:true,tension:0.35,pointRadius:5,pointHoverRadius:8,borderWidth:3,
     pointBackgroundColor:tV.map((v,i)=>v===Math.max(...tV)?'#005F9E':'#16a085'),
     pointBorderColor:'#fff',pointBorderWidth:2}]},
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)+' ingresos'}}},
-    scales:{x:{ticks:{font:{size:11,weight:'bold'}}},y:{ticks:{callback:v=>fmt(v),font:{size:10}}}}}});
+  options:barOpts(false,v=>fmt(v),true,tV)});
 
   const ssTot={};fd.forEach(d=>{ssTot[d.s]=(ssTot[d.s]||0)+getIng(d,anio);});
   const ssSort=Object.entries(ssTot).sort((a,b)=>b[1]-a[1]);
